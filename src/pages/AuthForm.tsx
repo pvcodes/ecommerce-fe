@@ -1,50 +1,76 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { login } from "@/store/authActions"; // Adjust the import as needed
+import { login, signup } from "@/store/authActions"; // Import signup action
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const AuthForm: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
+    const [isLoginMode, setIsLoginMode] = useState(true); // State to toggle between login and signup
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError(null); // Reset error state
+        setError(null);
 
         try {
-            // Dispatch login action and wait for completion
-            await dispatch(login({ email, password }) as any);
-            // Redirect to the /products route
-            navigate("/products");
+            if (isLoginMode) {
+                await dispatch(login({ email, password }) as any);
+                navigate("/products");
+            } else {
+                await dispatch(signup({ email, password }) as any);
+                navigate("/products");
+            }
         } catch (err: any) {
-            // Handle any errors during login
-            setError(err.message || "Failed to log in. Please try again.");
+            setError(err.message || "Failed to authenticate. Please try again.");
         }
     };
 
     return (
-        <form onSubmit={handleLogin}>
-            <h1>Login</h1>
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            <input
-                type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                required
-            />
-            <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                required
-            />
-            <button type="submit">Log In</button>
-        </form>
+        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+            <Card className="w-full max-w-md p-6 shadow-lg">
+                <CardHeader>
+                    <CardTitle className="text-xl font-semibold text-center">
+                        {isLoginMode ? "Login" : "Sign Up"}
+                    </CardTitle>
+                </CardHeader>
+                <form onSubmit={handleAuth} className="space-y-4">
+                    {error && toast(error)}
+                    <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Email"
+                        className="w-full"
+                        required
+                    />
+                    <Input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Password"
+                        className="w-full"
+                        required
+                    />
+                    <CardFooter className="flex justify-between">
+                        <Button type="submit" className="w-full">
+                            {isLoginMode ? "Log In" : "Sign Up"}
+                        </Button>
+                    </CardFooter>
+                </form>
+                <div className="text-center mt-4">
+                    <Button variant="link" onClick={() => setIsLoginMode(!isLoginMode)}>
+                        {isLoginMode ? "Switch to Sign Up" : "Switch to Log In"}
+                    </Button>
+                </div>
+            </Card>
+        </div>
     );
 };
 

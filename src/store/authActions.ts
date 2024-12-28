@@ -1,7 +1,32 @@
 import axios from "axios";
 
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
+export const SIGNUP_SUCCESS = "SIGNUP_SUCCESS";
 export const LOGOUT = "LOGOUT";
+
+export const signup =
+	(credentials: { email: string; password: string }) =>
+	async (dispatch: any) => {
+		try {
+			const response = await axios.post(
+				"https://ecommerce-be-c02v.onrender.com/user/register",
+				credentials
+			);
+			console.log(response.data, 12313);
+			const { token, user } = response.data.data;
+
+			// Store the token in local storage or cookies if needed
+			localStorage.setItem("token", token);
+
+			dispatch({
+				type: SIGNUP_SUCCESS,
+				payload: { token, user },
+			});
+		} catch (error) {
+			console.error("Sign-up failed", error);
+			// Handle sign-up error (e.g., dispatch an error action)
+		}
+	};
 
 export const login =
 	(credentials: { email: string; password: string }) =>
