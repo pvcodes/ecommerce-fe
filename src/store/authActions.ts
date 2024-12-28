@@ -4,7 +4,7 @@ export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGOUT = "LOGOUT";
 
 export const login =
-	(credentials: { username: string; password: string }) =>
+	(credentials: { email: string; password: string }) =>
 	async (dispatch: any) => {
 		try {
 			const response = await axios.post(
